@@ -1,16 +1,17 @@
 #pragma once
 
+#include <vector>
 #include <SFML/Graphics.hpp>
 
-using sf::Vector2f;
+using sf::Sprite, sf::Color, sf::Vector2f;
 
 namespace game
 {
-	enum Types : int
+	enum Type : int
 	{
 		Pawn = 0,
-		Tower = 1,
-		Horse = 2,
+		Rook = 1,
+		Knight = 2,
 		Bishop = 3,
 		Queen = 4,
 		King = 5
@@ -18,6 +19,19 @@ namespace game
 
 	struct Piece
 	{
-		Vector2f pos;
+		Type type;
+		Sprite sprite;
+	
+		Piece(Type, Sprite);
+
+		Piece(Type, Vector2f, Color);
+
+		Piece& operator=(const Piece&);
+
+		bool operator==(const Piece&) const;
+
+		bool operator!=(const Piece&) const;
 	};
+
+	void LoadPieceSprite(Piece&) noexcept;
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "piece.h"
 #include <memory>
 #include <SFML/Graphics.hpp>
 

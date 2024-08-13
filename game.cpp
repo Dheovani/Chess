@@ -5,7 +5,7 @@ using namespace game;
 
 void game::DisplayPieces() noexcept
 {
-
+	
 }
 
 void game::DrawBoard() noexcept

@@ -6,6 +6,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 find_package(SFML COMPONENTS system window graphics CONFIG REQUIRED)
 find_package(OpenGL REQUIRED)
-add_executable(ChessGame main.cpp game.h game.cpp piece.h)
+add_executable(ChessGame main.cpp game.h game.cpp piece.h piece.cpp)
 
 target_link_libraries(ChessGame PRIVATE sfml-system sfml-window sfml-graphics OpenGL::GL)
