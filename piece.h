@@ -3,7 +3,7 @@
 #include <vector>
 #include <SFML/Graphics.hpp>
 
-using sf::Sprite, sf::Color, sf::Vector2f;
+using sf::Vector2f;
 
 namespace game
 {
@@ -20,11 +20,9 @@ namespace game
 	struct Piece
 	{
 		Type type;
-		Sprite sprite;
+		Vector2f position;
 	
-		Piece(Type, Sprite);
-
-		Piece(Type, Vector2f, Color);
+		Piece(Type, Vector2f);
 
 		Piece& operator=(const Piece&);
 
@@ -33,5 +31,8 @@ namespace game
 		bool operator!=(const Piece&) const;
 	};
 
-	void LoadPieceSprite(Piece&) noexcept;
+	extern std::vector<Piece> white_pieces;
+	extern std::vector<Piece> black_pieces;
+
+	void LoadPieces(void) noexcept;
 }

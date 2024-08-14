@@ -5,17 +5,10 @@
 
 int main(void)
 {
-	game::SWindow window = game::GetWindow();
+	game::Run();
 
-	if (!window) {
-		std::cout << "Could not generate simulation's window!!" << std::endl;
-		return EXIT_FAILURE;
-	}
-
-	game::Run(window);
-
-	if (window && window->isOpen())
-		window->close();
+	if (game::window.isOpen())
+		game::window.close();
 
 	return EXIT_SUCCESS;
 }

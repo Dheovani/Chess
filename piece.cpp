@@ -4,53 +4,59 @@ using namespace game;
 
 using sf::Texture;
 
-Piece::Piece(Type t, Sprite s) : type(t), sprite(s)
+std::vector<Piece> game::white_pieces = {};
+std::vector<Piece> game::black_pieces = {};
+
+Piece::Piece(Type t, Vector2f p) : type(t), position(p)
 {}
-
-Piece::Piece(Type t, Vector2f pos, Color color) : type(t)
-{
-	sprite.setColor(color);
-	sprite.setPosition(pos);
-
-	LoadPieceSprite(*this);
-}
 
 Piece& Piece::operator=(const Piece& other)
 {
 	type = other.type;
-	sprite.setColor(other.sprite.getColor());
-	sprite.setPosition(other.sprite.getPosition());
+	position = other.position;
+
+	return *this;
 }
 
 bool Piece::operator==(const Piece& other) const
 {
 	return type == other.type
-		&& sprite.getColor() == other.sprite.getColor()
-		&& sprite.getPosition() == other.sprite.getPosition();
+		&& position == other.position;
 }
 
 bool Piece::operator!=(const Piece& other) const
 {
 	return type != other.type
-		&& sprite.getColor() != other.sprite.getColor()
-		&& sprite.getPosition() != other.sprite.getPosition();
+		&& position != other.position;
 }
 
-void game::LoadPieceSprite(Piece& piece) noexcept
+static Type GetTypeByPos(int i) noexcept
 {
-	Texture texture;
-
-	// TODO: Load sprite icons texture files
-	switch (piece.type) {
-	case Pawn:
-	case Rook:
-	case Knight:
-	case Bishop:
-	case Queen:
-	case King:
+	switch (i) {
+	case 1:
+	case 8:
+		return Rook;
+	case 2:
+	case 7:
+		return Knight;
+	case 3:
+	case 6:
+		return Bishop;
+	case 4:
+		return Queen;
+	case 5:
 	default:
-		throw "Not implemented yet";
+		return King;
 	}
+}
 
-	piece.sprite.setTexture(texture);
+void game::LoadPieces(void) noexcept
+{
+	for (int i = 0; i < 8; ++i) {
+		black_pieces.push_back(Piece(Pawn, Vector2f(i * 100.f, 100.f)));
+		white_pieces.push_back(Piece(Pawn, Vector2f(i * 100.f, 600.f)));
+
+		black_pieces.push_back(Piece(GetTypeByPos(i), Vector2f(i * 100.f, 0.f)));
+		white_pieces.push_back(Piece(GetTypeByPos(i), Vector2f(i * 100.f, 700.f)));
+	}
 }
