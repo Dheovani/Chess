@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <SFML/Graphics.hpp>
-#include "piece.h"
 
 namespace game
 {
@@ -13,7 +12,7 @@ namespace game
 	extern sf::Vector2f selected_position;
 
 	// Checks for events
-	void WatchEvents() noexcept;
+	void WatchEvents(void) noexcept;
 
 	// Draws the board's squares
 	void DrawBoard(void) noexcept;

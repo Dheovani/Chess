@@ -6,6 +6,9 @@
 
 namespace game
 {
+	constexpr float minpos = 0.f;
+	constexpr float maxpos = 700.f;
+
 	constexpr const char* assets_dir_path = "..\\..\\..\\assets\\";
 
 	enum Type : int
@@ -21,9 +24,10 @@ namespace game
 	struct Piece
 	{
 		Type type;
+		sf::Color color;
 		sf::Vector2f position;
 	
-		Piece(Type, sf::Vector2f);
+		Piece(Type, sf::Color, sf::Vector2f);
 
 		Piece& operator=(const Piece&);
 
@@ -35,7 +39,15 @@ namespace game
 	extern std::vector<Piece> white_pieces;
 	extern std::vector<Piece> black_pieces;
 
+	// Generates the pieces in the black and white piece vectors
 	void LoadPieces(void) noexcept;
 
+	// Returns the path to the texture filhe of the piece
 	std::string GetTextureFilename(Type, sf::Color) noexcept;
+
+	// Returns the piece at the given position
+	Piece GetPieceByPosition(sf::Vector2f) noexcept;
+
+	// Verifies if a position is occupied
+	bool IsPositionOccupied(sf::Vector2f) noexcept;
 }

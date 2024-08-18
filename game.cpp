@@ -1,5 +1,7 @@
 #include "game.h"
 #include <cmath>
+#include "piece.h"
+#include "piece_movements.h"
 
 using namespace game;
 
@@ -25,23 +27,6 @@ void game::WatchEvents() noexcept
 	}
 }
 
-inline static bool IsPieceSelected() noexcept
-{
-	bool is_white_piece_position = white_pieces.end() != std::find_if(white_pieces.begin(), white_pieces.end(),
-		[](const Piece& piece) -> bool {
-			return piece.position == selected_position;
-		});
-
-	bool is_black_piece_position = black_pieces.end() != std::find_if(black_pieces.begin(), black_pieces.end(),
-		[](const Piece& piece) -> bool {
-			return piece.position == selected_position;
-		});
-
-	return (is_white_piece_position || is_black_piece_position)
-		&& selected_position.x >= 0
-		&& selected_position.y >= 0;
-}
-
 void game::DrawBoard() noexcept
 {
 	sf::RectangleShape square(sf::Vector2f(100.0f, 100.0f));
@@ -58,11 +43,21 @@ void game::DrawBoard() noexcept
 		}
 	}
 
-	if (IsPieceSelected()) {
+	if (game::IsPositionOccupied(selected_position)) {
 		sf::RectangleShape selected(sf::Vector2f(100.0f, 100.0f));
 		selected.setFillColor(sf::Color::Red);
 		selected.setPosition(selected_position);
 		window.draw(selected);
+
+		Piece piece = game::GetPieceByPosition(selected_position);
+		std::vector<sf::Vector2f> possibleMoves = game::CalculatePieceMoves(piece);
+
+		for (sf::Vector2f pos : possibleMoves) {
+			sf::RectangleShape rs(sf::Vector2f(100.0f, 100.0f));
+			rs.setFillColor(sf::Color::Red);
+			rs.setPosition(pos);
+			window.draw(rs);
+		}
 	}
 }
 
@@ -71,7 +66,7 @@ void game::Run()
 	game::LoadPieces();
 
 	sf::Texture texture;
-	texture.loadFromFile("..\\..\\..\\assets\\black_bishop.png");
+	texture.loadFromFile(std::string(assets_dir_path) + "black_bishop.png");
 
 	sf::Sprite sprite;
 	sprite.setTexture(texture);
