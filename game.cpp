@@ -1,19 +1,31 @@
 #include "game.h"
 #include <cmath>
-#include <SFML/OpenGL.hpp>
-
-// TODO: Delete
-#include <iostream>
 
 using namespace game;
 
-RenderWindow game::window = RenderWindow(
+sf::RenderWindow game::window = sf::RenderWindow(
 	sf::VideoMode(window_wh, window_wh),
 	"Chessboard", sf::Style::Titlebar | sf::Style::Close);
 
-sf::Vector2f game::selected_position = sf::Vector2f(0.f, 0.f);
+sf::Vector2f game::selected_position = sf::Vector2f(-1.f, -1.f); // Initilize with an invalid position
 
-static bool IsPieceSelected(int x, int y)
+void game::WatchEvents() noexcept
+{
+	sf::Event event;
+
+	while (window.pollEvent(event)) {
+		if (event.type == sf::Event::Closed)
+			window.close();
+		else if (event.type == sf::Event::MouseButtonPressed) {
+			sf::Vector2i pos = sf::Mouse::getPosition(window);
+			double x = floor(abs(pos.x) / 100), y = floor(abs(pos.y) / 100);
+
+			selected_position = sf::Vector2f((float)x * 100.f, (float)y * 100.f);
+		}
+	}
+}
+
+inline static bool IsPieceSelected() noexcept
 {
 	bool is_white_piece_position = white_pieces.end() != std::find_if(white_pieces.begin(), white_pieces.end(),
 		[](const Piece& piece) -> bool {
@@ -26,8 +38,8 @@ static bool IsPieceSelected(int x, int y)
 		});
 
 	return (is_white_piece_position || is_black_piece_position)
-		&& selected_position.x && selected_position.x == x * 100.0f
-		&& selected_position.y && selected_position.y == y * 100.0f;
+		&& selected_position.x >= 0
+		&& selected_position.y >= 0;
 }
 
 void game::DrawBoard() noexcept
@@ -41,62 +53,50 @@ void game::DrawBoard() noexcept
 			else
 				square.setFillColor(sf::Color::Black);
 
-			if (IsPieceSelected(i, j)) {
-				square.setOutlineColor(sf::Color::Red);
-				square.setOutlineThickness(1.5f);
-			}
-			else
-				square.setOutlineThickness(0);
-
 			square.setPosition(i * 100.0f, j * 100.0f);
 			window.draw(square);
 		}
 	}
-}
 
-static sf::Sprite GetShape(sf::Vector2f pos)
-{
-	sf::Texture texture;
-	texture.loadFromFile("..\\..\\..\\assets\\pawn.png");
-
-	sf::Sprite sprite;
-	sprite.setColor(sf::Color::Green);
-	sprite.setPosition(pos);
-	sprite.setTexture(texture);
-	sprite.setScale(
-		100.0f / sprite.getLocalBounds().width / 2,
-		100.0f / sprite.getLocalBounds().height / 2
-	);
-
-	return sprite;
+	if (IsPieceSelected()) {
+		sf::RectangleShape selected(sf::Vector2f(100.0f, 100.0f));
+		selected.setFillColor(sf::Color::Red);
+		selected.setPosition(selected_position);
+		window.draw(selected);
+	}
 }
 
 void game::Run()
 {
 	game::LoadPieces();
 
+	sf::Texture texture;
+	texture.loadFromFile("..\\..\\..\\assets\\black_bishop.png");
+
+	sf::Sprite sprite;
+	sprite.setTexture(texture);
+	sprite.setScale(
+		100.0f / sprite.getLocalBounds().width,
+		100.0f / sprite.getLocalBounds().height
+	);
+
 	while (window.isOpen()) {
-		sf::Event event;
+		window.clear();
+		
+		game::WatchEvents();
+		game::DrawBoard();
 
-		while (window.pollEvent(event)) {
-			if (event.type == sf::Event::Closed)
-				window.close();
-			else if (event.type == sf::Event::MouseButtonPressed) {
-				sf::Vector2i pos = sf::Mouse::getPosition(window);
-				float x = (float)floor(abs(pos.x) / 100), y = (float)floor(abs(pos.y) / 100);
-
-				selected_position = sf::Vector2f(x * 100.f, y * 100.f);
-			}
+		for (const Piece& piece : white_pieces) {
+			texture.loadFromFile(game::GetTextureFilename(piece.type, sf::Color::White));
+			sprite.setPosition(piece.position);
+			window.draw(sprite);
 		}
 
-		window.clear();
-		game::DrawBoard();
-		
-		for (Piece& piece : white_pieces)
-			window.draw(GetShape(piece.position));
-
-		for (Piece& piece : black_pieces)
-			window.draw(GetShape(piece.position));
+		for (const Piece& piece : black_pieces) {
+			texture.loadFromFile(game::GetTextureFilename(piece.type, sf::Color::Black));
+			sprite.setPosition(piece.position);
+			window.draw(sprite);
+		}
 
 		// TODO: Move black pieces using ai
 

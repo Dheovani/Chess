@@ -1,12 +1,13 @@
 #pragma once
 
+#include <string>
 #include <vector>
 #include <SFML/Graphics.hpp>
 
-using sf::Vector2f;
-
 namespace game
 {
+	constexpr const char* assets_dir_path = "..\\..\\..\\assets\\";
+
 	enum Type : int
 	{
 		Pawn = 0,
@@ -20,9 +21,9 @@ namespace game
 	struct Piece
 	{
 		Type type;
-		Vector2f position;
+		sf::Vector2f position;
 	
-		Piece(Type, Vector2f);
+		Piece(Type, sf::Vector2f);
 
 		Piece& operator=(const Piece&);
 
@@ -35,4 +36,6 @@ namespace game
 	extern std::vector<Piece> black_pieces;
 
 	void LoadPieces(void) noexcept;
+
+	std::string GetTextureFilename(Type, sf::Color) noexcept;
 }

@@ -4,15 +4,16 @@
 #include <SFML/Graphics.hpp>
 #include "piece.h"
 
-using sf::RenderWindow;
-
 namespace game
 {
 	constexpr unsigned int window_wh = 800;
 
-	extern RenderWindow window;
+	extern sf::RenderWindow window;
 
 	extern sf::Vector2f selected_position;
+
+	// Checks for events
+	void WatchEvents() noexcept;
 
 	// Draws the board's squares
 	void DrawBoard(void) noexcept;
