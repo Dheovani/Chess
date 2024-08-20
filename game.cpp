@@ -16,20 +16,65 @@ sf::Vector2f game::selected_position = invalid_position; // Initilize with an in
 
 bool game::player_turn = true;
 
+static void DrawGameOverScreen(const std::string& message)
+{
+	sf::RectangleShape background(sf::Vector2f(window.getSize()));
+	background.setFillColor(sf::Color(0, 0, 0, 150));
+
+	sf::Font font;
+	if (!font.loadFromFile(FontPath)) {
+		return;
+	}
+
+	sf::Text text;
+	text.setFont(font);
+	text.setString(message);
+	text.setCharacterSize(50);
+	text.setFillColor(sf::Color::White);
+	text.setStyle(sf::Text::Bold);
+	text.setPosition(
+		window.getSize().x / 2 - text.getGlobalBounds().width / 2,
+		window.getSize().y / 2 - text.getGlobalBounds().height / 2
+	);
+
+	window.draw(background);
+	window.draw(text);
+}
+
+bool game::GameOver() noexcept
+{
+	const bool whiteKingIsAlive = white_pieces.end() == std::find_if(white_pieces.begin(), white_pieces.end(),
+		[](const Piece& p) -> bool { return p.type == King; });
+	const bool blackKingIsAlive = black_pieces.end() == std::find_if(black_pieces.begin(), black_pieces.end(),
+		[](const Piece& p) -> bool { return p.type == King; });
+
+	if (whiteKingIsAlive && !blackKingIsAlive) {
+		DrawGameOverScreen("You win!");
+		return true;
+	}
+
+	if (blackKingIsAlive && !whiteKingIsAlive) {
+		DrawGameOverScreen("You lose!");
+		return true;
+	}
+
+	return false;
+}
+
 void game::Move(Piece piece, sf::Vector2f newPos) noexcept
 {
 	std::vector<sf::Vector2f> validPositions = game::CalculatePieceMoves(piece);
 	std::vector<Piece>& allies = piece.color == sf::Color::Black ? black_pieces : white_pieces;
 	std::vector<Piece>& enemies = piece.color == sf::Color::White ? black_pieces : white_pieces;
 	
+	// TODO: Encontrar e corrigir bug ao mover as peças
 	if (validPositions.end() != std::find_if(validPositions.begin(), validPositions.end(),
-		[&newPos](sf::Vector2f pos) -> bool {
-			return pos == newPos;
-		}))
+		[&newPos](sf::Vector2f pos) -> bool { return pos == newPos; }))
 	{
 		for (Piece& p : allies) {
 			if (piece == p) {
 				p.position = newPos;
+				break;
 			}
 		}
 
@@ -41,9 +86,10 @@ void game::Move(Piece piece, sf::Vector2f newPos) noexcept
 			enemies.end()
 		);
 
-		selected_position = invalid_position;
 		player_turn = false;
 	}
+
+	selected_position = invalid_position;
 }
 
 void game::MoveBlackPiece() noexcept
@@ -144,6 +190,9 @@ void game::Run()
 	while (window.isOpen()) {
 		window.clear();
 		
+		if (game::GameOver())
+			continue;
+
 		if (player_turn)
 			game::WatchEvents();
 		else

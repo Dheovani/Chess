@@ -2,7 +2,22 @@
 
 #include <ctime>
 #include <vector>
-#include "piece.h"
+
+#define FontPath "..\\..\\..\\assets\\font.ttf"
+
+#define WhitePawnPath "..\\..\\..\\assets\\white_pawn.png"
+#define WhiteRookPath "..\\..\\..\\assets\\white_rook.png"
+#define WhiteKnightPath "..\\..\\..\\assets\\white_knight.png"
+#define WhiteBishopPath "..\\..\\..\\assets\\white_bishop.png"
+#define WhiteQueenPath "..\\..\\..\\assets\\white_queen.png"
+#define WhiteKingPath "..\\..\\..\\assets\\white_king.png"
+
+#define BlackPawnPath "..\\..\\..\\assets\\black_pawn.png"
+#define BlackRookPath "..\\..\\..\\assets\\black_rook.png"
+#define BlackKnightPath "..\\..\\..\\assets\\black_knight.png"
+#define BlackBishopPath "..\\..\\..\\assets\\black_bishop.png"
+#define BlackQueenPath "..\\..\\..\\assets\\black_queen.png"
+#define BlackKingPath "..\\..\\..\\assets\\black_king.png"
 
 namespace game
 {

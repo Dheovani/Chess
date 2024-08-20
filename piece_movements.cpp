@@ -16,7 +16,7 @@ std::vector<sf::Vector2f> game::CalculatePawnMoves(const Piece& piece) noexcept
 	if ((piece.position.y > minpos || it > minpos) && (piece.position.y < maxpos || it < maxpos)) {
 		sf::Vector2f next = { piece.position.x, piece.position.y + it };
 
-		if (!isPositionFilledByAlly(next)) {
+		if (!game::IsPositionOccupied(next)) {
 			positions.push_back(next);
 
 			next.y += it;

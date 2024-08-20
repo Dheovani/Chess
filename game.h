@@ -14,11 +14,14 @@ namespace game
 
 	extern bool player_turn;
 
+	// Verifies if someone won (and draws the win/lose screen)
+	bool GameOver(void) noexcept;
+
 	// Moves a piece to a new location
 	void Move(Piece, sf::Vector2f) noexcept;
 
 	// Moves a black piece to a new location randomly
-	void MoveBlackPiece() noexcept;
+	void MoveBlackPiece(void) noexcept;
 
 	// Checks for events
 	void WatchEvents(void) noexcept;

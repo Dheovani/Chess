@@ -1,4 +1,5 @@
 #include "piece.h"
+#include "utils.h"
 
 using namespace game;
 
@@ -67,23 +68,23 @@ std::string game::GetTextureFilename(const Piece& piece) noexcept
 	// TODO: Substituir as imagens por outras melhores
 	switch (piece.type) {
 	case Pawn:
-		return std::string(assets_dir_path) + (blackPiece ? "black_pawn.png" : "white_pawn.png");
+		return blackPiece ? BlackPawnPath : WhitePawnPath;
 
 	case Rook:
-		return std::string(assets_dir_path) + (blackPiece ? "black_rook.png" : "white_rook.png");
+		return blackPiece ? BlackRookPath : WhiteRookPath;
 
 	case Knight:
-		return std::string(assets_dir_path) + (blackPiece ? "black_knight.png" : "white_knight.png");
+		return blackPiece ? BlackKnightPath : WhiteKnightPath;
 
 	case Bishop:
-		return std::string(assets_dir_path) + (blackPiece ? "black_bishop.png" : "white_bishop.png");
+		return blackPiece ? BlackBishopPath : WhiteBishopPath;
 
 	case Queen:
-		return std::string(assets_dir_path) + (blackPiece ? "black_queen.png" : "white_queen.png");
+		return blackPiece ? BlackQueenPath : WhiteQueenPath;
 
 	case King:
 	default:
-		return std::string(assets_dir_path) + (blackPiece ? "black_king.png" : "white_king.png");
+		return blackPiece ? BlackKingPath : WhiteKingPath;
 	}
 }
 
