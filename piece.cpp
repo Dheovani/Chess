@@ -2,8 +2,6 @@
 
 using namespace game;
 
-using sf::Texture;
-
 std::vector<Piece> game::white_pieces = {};
 std::vector<Piece> game::black_pieces = {};
 
@@ -62,12 +60,12 @@ void game::LoadPieces() noexcept
 	}
 }
 
-std::string game::GetTextureFilename(Type type, sf::Color color = sf::Color::Black) noexcept
+std::string game::GetTextureFilename(const Piece& piece) noexcept
 {
-	const bool blackPiece = color == sf::Color::Black;
+	const bool blackPiece = piece.color == sf::Color::Black;
 
 	// TODO: Substituir as imagens por outras melhores
-	switch (type) {
+	switch (piece.type) {
 	case Pawn:
 		return std::string(assets_dir_path) + (blackPiece ? "black_pawn.png" : "white_pawn.png");
 

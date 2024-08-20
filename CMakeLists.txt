@@ -10,4 +10,4 @@ add_executable(ChessGame main.cpp
 	piece.h piece.cpp
 	piece_movements.h piece_movements.cpp)
 
-target_link_libraries(ChessGame PRIVATE sfml-system sfml-window sfml-graphics)
+target_link_libraries(ChessGame PRIVATE sfml-system sfml-network sfml-graphics sfml-window)

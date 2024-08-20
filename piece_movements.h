@@ -4,6 +4,10 @@
 
 namespace game
 {
+	constexpr float minpos = 0.f;
+
+	constexpr float maxpos = 700.f;
+
 	std::vector<sf::Vector2f> CalculatePawnMoves(const Piece&) noexcept;
 
 	std::vector<sf::Vector2f> CalculateRookMoves(const Piece&) noexcept;

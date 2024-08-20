@@ -11,27 +11,29 @@ std::vector<sf::Vector2f> game::CalculatePawnMoves(const Piece& piece) noexcept
 	std::function<bool(sf::Vector2f)> isPositionFilledByAlly = [&allies](sf::Vector2f pos) -> bool {
 		return allies.end() != std::find_if(allies.begin(), allies.end(),
 			[&pos](Piece& pPos) -> bool { return pPos.position == pos; });
-		};
+	};
 
 	if ((piece.position.y > minpos || it > minpos) && (piece.position.y < maxpos || it < maxpos)) {
 		sf::Vector2f next = { piece.position.x, piece.position.y + it };
-		if (!isPositionFilledByAlly(next))
+
+		if (!isPositionFilledByAlly(next)) {
 			positions.push_back(next);
 
-		next.y += it;
-		if (piece.position.y == 100.f || piece.position.y == 600.f && !isPositionFilledByAlly(next))
-			positions.push_back({ piece.position.x, piece.position.y + it * 2 });
+			next.y += it;
+			if (piece.position.y == 100.f || piece.position.y == 600.f && !isPositionFilledByAlly(next))
+				positions.push_back({ piece.position.x, piece.position.y + it * 2 });
+		}
 
 		// TODO: Implementar captura "en-passant"
 
-		const sf::Vector2f leftEnemy = { piece.position.x - it, piece.position.y + it };
-		const sf::Vector2f rightEnemy = { piece.position.x + it, piece.position.y + it };
+		const sf::Vector2f upLeft = { piece.position.x - it, piece.position.y + it };
+		const sf::Vector2f upRight = { piece.position.x + it, piece.position.y + it };
 
-		if (piece.position.x < maxpos && game::IsPositionOccupied(rightEnemy))
-			positions.push_back(rightEnemy);
+		if (piece.position.x < maxpos && game::IsPositionOccupied(upLeft) && !isPositionFilledByAlly(upLeft))
+			positions.push_back(upLeft);
 
-		if (piece.position.x > minpos && game::IsPositionOccupied(leftEnemy))
-			positions.push_back(leftEnemy);
+		if (piece.position.x > minpos && game::IsPositionOccupied(upRight) && !isPositionFilledByAlly(upRight))
+			positions.push_back(upRight);
 	}
 
 	return positions;
@@ -46,7 +48,7 @@ std::vector<sf::Vector2f> game::CalculateRookMoves(const Piece& piece) noexcept
 	std::function<bool(sf::Vector2f)> isPositionFilledByEnemy = [&enemies](sf::Vector2f pos) -> bool {
 		return enemies.end() != std::find_if(enemies.begin(), enemies.end(),
 			[&pos](Piece& pPos) -> bool { return pPos.position == pos; });
-		};
+	};
 
 	for (float down = piece.position.y + 100.f; down <= maxpos; down += 100.f) {
 		if (game::IsPositionOccupied({ piece.position.x, down })) {
@@ -104,7 +106,7 @@ std::vector<sf::Vector2f> game::CalculateKnightMoves(const Piece& piece) noexcep
 	std::function<bool(sf::Vector2f)> isPositionFilledByAlly = [&allies](sf::Vector2f pos) -> bool {
 		return allies.end() != std::find_if(allies.begin(), allies.end(),
 			[&pos](Piece& pPos) -> bool { return pPos.position == pos; });
-		};
+	};
 
 	if (piece.position.x - 300.f >= minpos) {
 		if (piece.position.y + 100.f <= maxpos && !isPositionFilledByAlly({ piece.position.x - 300.f, piece.position.y + 100.f }))
@@ -151,7 +153,7 @@ std::vector<sf::Vector2f> game::CalculateBishopMoves(const Piece& piece) noexcep
 	std::function<bool(sf::Vector2f)> isPositionFilledByEnemy = [&enemies](sf::Vector2f pos) -> bool {
 		return enemies.end() != std::find_if(enemies.begin(), enemies.end(),
 			[&pos](Piece& pPos) -> bool { return pPos.position == pos; });
-		};
+	};
 
 	for (sf::Vector2f upL = piece.position; upL.x > minpos && upL.y > minpos; upL.x -= 100.f, upL.y -= 100.f) {
 		if (game::IsPositionOccupied({ upL.x - 100.f, upL.y - 100.f })) {
@@ -221,7 +223,7 @@ std::vector<sf::Vector2f> game::CalculateKingMoves(const Piece& piece) noexcept
 	std::function<bool(sf::Vector2f)> isPositionFilledByAlly = [&allies](sf::Vector2f pos) -> bool {
 		return allies.end() != std::find_if(allies.begin(), allies.end(),
 			[&pos](Piece& pPos) -> bool { return pPos.position == pos; });
-		};
+	};
 
 	sf::Vector2f up = { piece.position.x, piece.position.y - 100.f };
 	sf::Vector2f down = { piece.position.x, piece.position.y + 100.f };

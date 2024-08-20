@@ -1,19 +1,46 @@
 #include "game.h"
 #include <cmath>
-#include "piece.h"
+#include <functional>
 #include "piece_movements.h"
 
 using namespace game;
+
+static const sf::Vector2f invalid_position = sf::Vector2f(-1.f, -1.f);
 
 sf::RenderWindow game::window = sf::RenderWindow(
 	sf::VideoMode(window_wh, window_wh),
 	"Chessboard", sf::Style::Titlebar | sf::Style::Close);
 
-sf::Vector2f game::selected_position = sf::Vector2f(-1.f, -1.f); // Initilize with an invalid position
+sf::Vector2f game::selected_position = invalid_position; // Initilize with an invalid position
+
+bool game::player_turn = true;
+
+void game::Move(Piece& piece, sf::Vector2f newPos) noexcept
+{
+	std::vector<sf::Vector2f> validPositions = game::CalculatePieceMoves(piece);
+	std::vector<Piece>& pieces = piece.color == sf::Color::Black ? black_pieces : white_pieces;
+	
+	if (validPositions.end() != std::find_if(validPositions.begin(), validPositions.end(),
+		[&newPos](sf::Vector2f pos) -> bool {
+			return pos == newPos;
+		}))
+	{
+		for (Piece& p : pieces) {
+			if (piece == p) {
+				p.position = newPos;
+			}
+		}
+	}
+}
 
 void game::WatchEvents() noexcept
 {
 	sf::Event event;
+
+	std::function<bool(sf::Vector2f)> isInvalidPiece = [](sf::Vector2f pos) -> bool {
+		return black_pieces.end() != std::find_if(black_pieces.begin(), black_pieces.end(),
+			[&pos](Piece& pPos) -> bool { return pPos.position == pos; });
+	};
 
 	while (window.pollEvent(event)) {
 		if (event.type == sf::Event::Closed)
@@ -21,8 +48,21 @@ void game::WatchEvents() noexcept
 		else if (event.type == sf::Event::MouseButtonPressed) {
 			sf::Vector2i pos = sf::Mouse::getPosition(window);
 			double x = floor(abs(pos.x) / 100), y = floor(abs(pos.y) / 100);
+			sf::Vector2f mousePos = sf::Vector2f((float)x * 100.f, (float)y * 100.f);
 
-			selected_position = sf::Vector2f((float)x * 100.f, (float)y * 100.f);
+			// Can only select white pieces
+			if (isInvalidPiece(mousePos))
+				continue;
+
+			if (selected_position == invalid_position)
+				selected_position = mousePos;
+			else {
+				Piece piece = game::GetPieceByPosition(selected_position);
+				game::Move(piece, mousePos);
+
+				selected_position = invalid_position;
+				player_turn = false;
+			}
 		}
 	}
 }
@@ -78,22 +118,25 @@ void game::Run()
 	while (window.isOpen()) {
 		window.clear();
 		
-		game::WatchEvents();
+		if (player_turn)
+			game::WatchEvents();
+
 		game::DrawBoard();
 
 		for (const Piece& piece : white_pieces) {
-			texture.loadFromFile(game::GetTextureFilename(piece.type, sf::Color::White));
+			texture.loadFromFile(game::GetTextureFilename(piece));
 			sprite.setPosition(piece.position);
 			window.draw(sprite);
 		}
 
 		for (const Piece& piece : black_pieces) {
-			texture.loadFromFile(game::GetTextureFilename(piece.type, sf::Color::Black));
+			texture.loadFromFile(game::GetTextureFilename(piece));
 			sprite.setPosition(piece.position);
 			window.draw(sprite);
 		}
 
-		// TODO: Move black pieces using ai
+		// TODO: Encontrar uma forma de mover as peças negras
+		// TODO: Atualizar o turno após mover as peças negras
 
 		window.display();
 	}
