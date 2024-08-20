@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 find_package(SFML COMPONENTS system window graphics CONFIG REQUIRED)
 add_executable(ChessGame main.cpp
+	utils.h
 	game.h game.cpp
 	piece.h piece.cpp
 	piece_movements.h piece_movements.cpp)

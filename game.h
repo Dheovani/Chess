@@ -17,6 +17,9 @@ namespace game
 	// Moves a piece to a new location
 	void Move(Piece, sf::Vector2f) noexcept;
 
+	// Moves a black piece to a new location randomly
+	void MoveBlackPiece() noexcept;
+
 	// Checks for events
 	void WatchEvents(void) noexcept;
 

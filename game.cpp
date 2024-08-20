@@ -1,5 +1,6 @@
 #include "game.h"
 #include <cmath>
+#include "utils.h"
 #include <functional>
 #include "piece_movements.h"
 
@@ -42,6 +43,22 @@ void game::Move(Piece piece, sf::Vector2f newPos) noexcept
 
 		selected_position = invalid_position;
 		player_turn = false;
+	}
+}
+
+void game::MoveBlackPiece() noexcept
+{
+	uint piece_n = game::GetRandomNumber(black_pieces);
+	Piece piece = black_pieces[piece_n];
+	std::vector<sf::Vector2f> validPositions = game::CalculatePieceMoves(piece);
+
+	if (validPositions.empty())
+		game::MoveBlackPiece(); // Keep trying to find a valid piece to move
+	else {
+		uint pos_n = game::GetRandomNumber(validPositions);
+		game::Move(piece, validPositions[pos_n]);
+
+		player_turn = true;
 	}
 }
 
@@ -129,6 +146,8 @@ void game::Run()
 		
 		if (player_turn)
 			game::WatchEvents();
+		else
+			game::MoveBlackPiece();
 
 		game::DrawBoard();
 
@@ -143,9 +162,6 @@ void game::Run()
 			sprite.setPosition(piece.position);
 			window.draw(sprite);
 		}
-
-		// TODO: Encontrar uma forma de mover as peças negras
-		// TODO: Atualizar o turno após mover as peças negras
 
 		window.display();
 	}
