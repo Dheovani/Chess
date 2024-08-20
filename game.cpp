@@ -15,21 +15,33 @@ sf::Vector2f game::selected_position = invalid_position; // Initilize with an in
 
 bool game::player_turn = true;
 
-void game::Move(Piece& piece, sf::Vector2f newPos) noexcept
+void game::Move(Piece piece, sf::Vector2f newPos) noexcept
 {
 	std::vector<sf::Vector2f> validPositions = game::CalculatePieceMoves(piece);
-	std::vector<Piece>& pieces = piece.color == sf::Color::Black ? black_pieces : white_pieces;
+	std::vector<Piece>& allies = piece.color == sf::Color::Black ? black_pieces : white_pieces;
+	std::vector<Piece>& enemies = piece.color == sf::Color::White ? black_pieces : white_pieces;
 	
 	if (validPositions.end() != std::find_if(validPositions.begin(), validPositions.end(),
 		[&newPos](sf::Vector2f pos) -> bool {
 			return pos == newPos;
 		}))
 	{
-		for (Piece& p : pieces) {
+		for (Piece& p : allies) {
 			if (piece == p) {
 				p.position = newPos;
 			}
 		}
+
+		enemies.erase(
+			std::remove_if(enemies.begin(), enemies.end(),
+				[&newPos](const Piece& p) {
+					return p.position == newPos;
+				}),
+			enemies.end()
+		);
+
+		selected_position = invalid_position;
+		player_turn = false;
 	}
 }
 
@@ -50,18 +62,15 @@ void game::WatchEvents() noexcept
 			double x = floor(abs(pos.x) / 100), y = floor(abs(pos.y) / 100);
 			sf::Vector2f mousePos = sf::Vector2f((float)x * 100.f, (float)y * 100.f);
 
-			// Can only select white pieces
-			if (isInvalidPiece(mousePos))
-				continue;
+			if (selected_position == invalid_position) {
+				if (isInvalidPiece(mousePos)) // Can only select white pieces
+					continue;
 
-			if (selected_position == invalid_position)
 				selected_position = mousePos;
+			}
 			else {
 				Piece piece = game::GetPieceByPosition(selected_position);
 				game::Move(piece, mousePos);
-
-				selected_position = invalid_position;
-				player_turn = false;
 			}
 		}
 	}

@@ -15,7 +15,7 @@ namespace game
 	extern bool player_turn;
 
 	// Moves a piece to a new location
-	void Move(Piece&, sf::Vector2f) noexcept;
+	void Move(Piece, sf::Vector2f) noexcept;
 
 	// Checks for events
 	void WatchEvents(void) noexcept;
