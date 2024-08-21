@@ -4,7 +4,7 @@
 std::vector<sf::Vector2f> game::CalculatePawnMoves(const Piece& piece) noexcept
 {
 	std::vector<Piece> allies = piece.color == sf::Color::Black ? black_pieces : white_pieces;
-	std::vector<sf::Vector2f> positions = {};
+	std::vector<sf::Vector2f> positions;
 	const float it = piece.color == sf::Color::Black ? 100.f : -100.f;
 
 	// Verifies if the occupied position is the position of an ally
@@ -42,7 +42,7 @@ std::vector<sf::Vector2f> game::CalculatePawnMoves(const Piece& piece) noexcept
 std::vector<sf::Vector2f> game::CalculateRookMoves(const Piece& piece) noexcept
 {
 	std::vector<Piece> enemies = piece.color == sf::Color::White ? black_pieces : white_pieces;
-	std::vector<sf::Vector2f> positions = {};
+	std::vector<sf::Vector2f> positions;
 
 	// Verifies if the occupied position is the position of an enemy
 	std::function<bool(sf::Vector2f)> isPositionFilledByEnemy = [&enemies](sf::Vector2f pos) -> bool {
@@ -100,7 +100,7 @@ std::vector<sf::Vector2f> game::CalculateRookMoves(const Piece& piece) noexcept
 std::vector<sf::Vector2f> game::CalculateKnightMoves(const Piece& piece) noexcept
 {
 	std::vector<Piece> allies = piece.color == sf::Color::Black ? black_pieces : white_pieces;
-	std::vector<sf::Vector2f> positions = {};
+	std::vector<sf::Vector2f> positions;
 
 	// Verifies if the occupied position is the position of an ally
 	std::function<bool(sf::Vector2f)> isPositionFilledByAlly = [&allies](sf::Vector2f pos) -> bool {
@@ -147,7 +147,7 @@ std::vector<sf::Vector2f> game::CalculateKnightMoves(const Piece& piece) noexcep
 std::vector<sf::Vector2f> game::CalculateBishopMoves(const Piece& piece) noexcept
 {
 	std::vector<Piece> enemies = piece.color == sf::Color::White ? black_pieces : white_pieces;
-	std::vector<sf::Vector2f> positions = {};
+	std::vector<sf::Vector2f> positions;
 
 	// Verifies if the occupied position is the position of an enemy
 	std::function<bool(sf::Vector2f)> isPositionFilledByEnemy = [&enemies](sf::Vector2f pos) -> bool {
@@ -204,7 +204,7 @@ std::vector<sf::Vector2f> game::CalculateBishopMoves(const Piece& piece) noexcep
 
 std::vector<sf::Vector2f> game::CalculateQueenMoves(const Piece& piece) noexcept
 {
-	std::vector<sf::Vector2f> positions = {};
+	std::vector<sf::Vector2f> positions;
 	std::vector<sf::Vector2f> rookPositions = game::CalculateRookMoves(piece);
 	std::vector<sf::Vector2f> bishopPositions = game::CalculateBishopMoves(piece);
 
@@ -217,7 +217,7 @@ std::vector<sf::Vector2f> game::CalculateQueenMoves(const Piece& piece) noexcept
 std::vector<sf::Vector2f> game::CalculateKingMoves(const Piece& piece) noexcept
 {
 	std::vector<Piece> allies = piece.color == sf::Color::Black ? black_pieces : white_pieces;
-	std::vector<sf::Vector2f> positions = {};
+	std::vector<sf::Vector2f> positions;
 
 	// Verifies if the occupied position is the position of an ally
 	std::function<bool(sf::Vector2f)> isPositionFilledByAlly = [&allies](sf::Vector2f pos) -> bool {

@@ -16,7 +16,7 @@ sf::Vector2f game::selected_position = invalid_position; // Initilize with an in
 
 bool game::player_turn = true;
 
-static void DrawGameOverScreen(const std::string& message)
+static void DrawGameOverScreen(const bool player_won)
 {
 	sf::RectangleShape background(sf::Vector2f(window.getSize()));
 	background.setFillColor(sf::Color(0, 0, 0, 150));
@@ -28,33 +28,35 @@ static void DrawGameOverScreen(const std::string& message)
 
 	sf::Text text;
 	text.setFont(font);
-	text.setString(message);
+	text.setString(player_won ? "You win!" : "You lose!");
 	text.setCharacterSize(50);
-	text.setFillColor(sf::Color::White);
+	text.setFillColor(player_won ? sf::Color::White : sf::Color::Red);
 	text.setStyle(sf::Text::Bold);
 	text.setPosition(
 		window.getSize().x / 2 - text.getGlobalBounds().width / 2,
 		window.getSize().y / 2 - text.getGlobalBounds().height / 2
 	);
 
+	window.clear();
 	window.draw(background);
 	window.draw(text);
+	window.display();
 }
 
 bool game::GameOver() noexcept
 {
-	const bool whiteKingIsAlive = white_pieces.end() == std::find_if(white_pieces.begin(), white_pieces.end(),
+	const bool whiteKingIsAlive = white_pieces.end() != std::find_if(white_pieces.begin(), white_pieces.end(),
 		[](const Piece& p) -> bool { return p.type == King; });
-	const bool blackKingIsAlive = black_pieces.end() == std::find_if(black_pieces.begin(), black_pieces.end(),
+	const bool blackKingIsAlive = black_pieces.end() != std::find_if(black_pieces.begin(), black_pieces.end(),
 		[](const Piece& p) -> bool { return p.type == King; });
 
 	if (whiteKingIsAlive && !blackKingIsAlive) {
-		DrawGameOverScreen("You win!");
+		DrawGameOverScreen(true);
 		return true;
 	}
 
 	if (blackKingIsAlive && !whiteKingIsAlive) {
-		DrawGameOverScreen("You lose!");
+		DrawGameOverScreen(false);
 		return true;
 	}
 
