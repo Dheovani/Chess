@@ -45,10 +45,9 @@ static void DrawGameOverScreen(const bool player_won)
 
 bool game::GameOver() noexcept
 {
-	const bool whiteKingIsAlive = white_pieces.end() != std::find_if(white_pieces.begin(), white_pieces.end(),
-		[](const Piece& p) -> bool { return p.type == King; });
-	const bool blackKingIsAlive = black_pieces.end() != std::find_if(black_pieces.begin(), black_pieces.end(),
-		[](const Piece& p) -> bool { return p.type == King; });
+	const std::function<bool(const Piece&)> callback = [](const Piece& p) { return p.type == King; };
+	const bool whiteKingIsAlive = game::VectorContainsValue(white_pieces, callback);
+	const bool blackKingIsAlive = game::VectorContainsValue(black_pieces, callback);
 
 	if (whiteKingIsAlive && !blackKingIsAlive) {
 		DrawGameOverScreen(true);
@@ -69,10 +68,8 @@ void game::Move(Piece piece, sf::Vector2f newPos) noexcept
 	std::vector<Piece>& allies = piece.color == sf::Color::Black ? black_pieces : white_pieces;
 	std::vector<Piece>& enemies = piece.color == sf::Color::White ? black_pieces : white_pieces;
 	
-	// TODO: Encontrar e corrigir bug ao mover as peças
-	if (validPositions.end() != std::find_if(validPositions.begin(), validPositions.end(),
-		[&newPos](sf::Vector2f pos) -> bool { return pos == newPos; }))
-	{
+	const std::function<bool(const sf::Vector2f&)> callback = [&newPos](const sf::Vector2f& pos) { return pos == newPos; };
+	if (game::VectorContainsValue(validPositions, callback)) {
 		for (Piece& p : allies) {
 			if (piece == p) {
 				p.position = newPos;
@@ -98,6 +95,7 @@ void game::MoveBlackPiece() noexcept
 {
 	uint piece_n = game::GetRandomNumber(black_pieces);
 	Piece piece = black_pieces[piece_n];
+	// TODO: Encontrar e corrigir bug na alocação de memória ao criar os vetor de posições
 	std::vector<sf::Vector2f> validPositions = game::CalculatePieceMoves(piece);
 
 	if (validPositions.empty())
@@ -115,8 +113,8 @@ void game::WatchEvents() noexcept
 	sf::Event event;
 
 	std::function<bool(sf::Vector2f)> isInvalidPiece = [](sf::Vector2f pos) -> bool {
-		return black_pieces.end() != std::find_if(black_pieces.begin(), black_pieces.end(),
-			[&pos](Piece& pPos) -> bool { return pPos.position == pos; });
+		const std::function<bool(const Piece&)> callback = [&pos](const Piece& pPos) { return pPos.position == pos; };
+		return game::VectorContainsValue(black_pieces, callback);
 	};
 
 	while (window.pollEvent(event)) {

@@ -2,6 +2,7 @@
 
 #include <ctime>
 #include <vector>
+#include <functional>
 
 #define FontPath "..\\..\\..\\assets\\font.ttf"
 
@@ -29,5 +30,11 @@ namespace game
 		std::srand(static_cast<unsigned>(std::time(0)));
 		uint randomIndex = std::rand() % vec.size();
 		return randomIndex;
+	}
+
+	template <typename _Ty>
+	bool VectorContainsValue(std::vector<_Ty>& vec, std::function<bool(const _Ty&)> callback)
+	{
+		return vec.end() != std::find_if(vec.begin(), vec.end(), callback);
 	}
 }
