@@ -20,6 +20,14 @@ static bool IsPositionFilledByEnemy(const Piece& piece, const sf::Vector2f& pos)
 	return game::VectorContainsValue(enemies, callback);
 }
 
+// Verifies if a pawn can capture an enemy en-passant
+static bool IsEnemyEnpassant(const Piece& piece, const sf::Vector2f& pos) noexcept
+{
+	const float it = piece.color == sf::Color::Black ? -100.f : 100.f;
+	const float posY = piece.color == sf::Color::Black ? 600.f : 100.f;
+	return pos.y == posY + it * 2 && IsPositionFilledByEnemy(piece, pos);
+}
+
 std::vector<sf::Vector2f> game::CalculatePawnMoves(const Piece& piece) noexcept
 {
 	const float it = piece.color == sf::Color::Black ? 100.f : -100.f;
@@ -32,20 +40,31 @@ std::vector<sf::Vector2f> game::CalculatePawnMoves(const Piece& piece) noexcept
 			positions.push_back(next);
 
 			next.y += it;
-			if (piece.position.y == 100.f || piece.position.y == 600.f && !IsPositionFilledByAlly(piece, next))
+			if (piece.position.y == 100.f || piece.position.y == 600.f && !game::IsPositionOccupied(next))
 				positions.push_back({ piece.position.x, piece.position.y + it * 2 });
 		}
 
-		// TODO: Implementar captura "en-passant"
+		if (piece.position.x < maxpos) {
+			const sf::Vector2f left = { piece.position.x - it, piece.position.y };
+			const sf::Vector2f upLeft = { piece.position.x - it, piece.position.y + it };
 
-		const sf::Vector2f upLeft = { piece.position.x - it, piece.position.y + it };
-		const sf::Vector2f upRight = { piece.position.x + it, piece.position.y + it };
+			if (IsPositionFilledByEnemy(piece, left) && IsEnemyEnpassant(piece, left))
+				positions.push_back(left);
 
-		if (piece.position.x < maxpos && game::IsPositionOccupied(upLeft) && !IsPositionFilledByAlly(piece, upLeft))
-			positions.push_back(upLeft);
+			if (IsPositionFilledByEnemy(piece, upLeft))
+				positions.push_back(upLeft);
+		}
 
-		if (piece.position.x > minpos && game::IsPositionOccupied(upRight) && !IsPositionFilledByAlly(piece, upRight))
-			positions.push_back(upRight);
+		if (piece.position.x > minpos) {
+			const sf::Vector2f right = { piece.position.x + it, piece.position.y };
+			const sf::Vector2f upRight = { piece.position.x + it, piece.position.y + it };
+
+			if (IsPositionFilledByEnemy(piece, right) && IsEnemyEnpassant(piece, right))
+				positions.push_back(right);
+
+			if (piece.position.x > minpos && IsPositionFilledByEnemy(piece, upRight))
+				positions.push_back(upRight);
+		}
 	}
 
 	return positions;

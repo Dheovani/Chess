@@ -22,13 +22,11 @@
 
 namespace game
 {
-	typedef unsigned int uint;
-
 	template <typename _Ty>
-	uint GetRandomNumber(std::vector<_Ty>& vec) noexcept
+	size_t GetRandomNumber(std::vector<_Ty>& vec) noexcept
 	{
 		std::srand(static_cast<unsigned>(std::time(0)));
-		uint randomIndex = std::rand() % vec.size();
+		size_t randomIndex = std::rand() % vec.size();
 		return randomIndex;
 	}
 
