@@ -43,9 +43,68 @@ static void DrawGameOverScreen(const bool player_won)
 	window.display();
 }
 
+static int DrawPromotionOptions(const std::vector<std::string>& options)
+{
+	float spacing = 40.f;
+	int selectedItemIndex = -1;
+	unsigned int textSize = 30;
+
+	sf::RectangleShape background(sf::Vector2f(window.getSize()));
+	background.setFillColor(sf::Color(0, 0, 0, 150));
+
+	sf::Font font;
+	if (!font.loadFromFile(FontPath)) {
+		return selectedItemIndex;
+	}
+
+	while (window.isOpen() && selectedItemIndex == -1 && !options.empty()) {
+		sf::Event event;
+		while (window.pollEvent(event)) {
+			if (event.type == sf::Event::Closed)
+				window.close();
+
+			if (event.type == sf::Event::KeyPressed) {
+				selectedItemIndex = event.key.code - 26;
+			}
+		}
+
+		window.clear(sf::Color::Black);
+
+		sf::Text text;
+		text.setFont(font);
+		text.setString("Type the value of the piece to promote your pawn:");
+		text.setCharacterSize(textSize);
+		text.setPosition(10.f, 10.f);
+		text.setFillColor(sf::Color::White);
+		window.draw(text);
+
+		for (size_t i = 0; i < options.size(); ++i) {
+			sf::Text text;
+			text.setFont(font);
+			text.setString(std::string{ options[i] + " (" + std::to_string(i) + ")" });
+			text.setCharacterSize(textSize);
+			text.setPosition(10.f, 100.f + i * spacing);
+
+			if (i == selectedItemIndex) {
+				text.setFillColor(sf::Color::Yellow);
+				text.setStyle(sf::Text::Bold | sf::Text::Underlined);
+			}
+			else {
+				text.setFillColor(sf::Color::White);
+			}
+
+			window.draw(text);
+		}
+
+		window.display();
+	}
+
+	return selectedItemIndex;
+}
+
 bool game::GameOver() noexcept
 {
-	const std::function<bool(const Piece&)> callback = [](const Piece& p) { return p.type == King; };
+	const std::function<bool(const Piece&)> callback = [](const Piece& p) -> bool { return p.type == King; };
 	const bool whiteKingIsAlive = game::VectorContainsValue(white_pieces, callback);
 	const bool blackKingIsAlive = game::VectorContainsValue(black_pieces, callback);
 
@@ -62,28 +121,76 @@ bool game::GameOver() noexcept
 	return false;
 }
 
+void game::PromotePawn(Piece& piece) noexcept
+{
+	std::vector<std::string> piecesToPromote;
+
+	for (Piece& p : lost_pieces) {
+		if (piece.color == p.color) {
+			switch (p.type) {
+			case Pawn: piecesToPromote.push_back("Pawn");
+				break;
+			case Rook: piecesToPromote.push_back("Rook");
+				break;
+			case Knight: piecesToPromote.push_back("Knight");
+				break;
+			case Bishop: piecesToPromote.push_back("Bishop");
+				break;
+			case Queen: piecesToPromote.push_back("Queen");
+				break;
+			case King: piecesToPromote.push_back("King");
+				break;
+			}
+		}
+	}
+
+	int option = DrawPromotionOptions(piecesToPromote);
+	std::string type = piecesToPromote[option].c_str();
+
+	if (type == "Pawn")
+		piece.type = Pawn;
+	else if (type == "Rook")
+		piece.type = Rook;
+	else if (type == "Knight")
+		piece.type = Knight;
+	else if (type == "Bishop")
+		piece.type = Bishop;
+	else if (type == "Queen")
+		piece.type = Queen;
+}
+
 void game::Move(Piece piece, sf::Vector2f newPos) noexcept
 {
 	std::vector<sf::Vector2f> validPositions = game::CalculatePieceMoves(piece);
 	std::vector<Piece>& allies = piece.color == sf::Color::Black ? black_pieces : white_pieces;
 	std::vector<Piece>& enemies = piece.color == sf::Color::White ? black_pieces : white_pieces;
 	
-	const std::function<bool(const sf::Vector2f&)> callback = [&newPos](const sf::Vector2f& pos) { return pos == newPos; };
+	const std::function<bool(const sf::Vector2f&)> callback = [&newPos](const sf::Vector2f& pos) -> bool { return pos == newPos; };
 	if (game::VectorContainsValue(validPositions, callback)) {
-		for (Piece& p : allies) {
-			if (piece == p) {
-				p.position = newPos;
-				break;
-			}
-		}
-
 		enemies.erase(
 			std::remove_if(enemies.begin(), enemies.end(),
-				[&newPos](const Piece& p) {
-					return p.position == newPos;
+				[&newPos](const Piece& p) -> bool {
+					if (p.position == newPos) {
+						lost_pieces.push_back(p);
+						return true;
+					}
+
+					return false;
 				}),
 			enemies.end()
 		);
+
+		for (Piece& p : allies) {
+			if (piece == p) {
+				p.position = newPos;
+
+				if (p.type == Pawn && (newPos.y == 0.f || newPos.y == 700.f)) {
+					game::PromotePawn(p);
+				}
+
+				break;
+			}
+		}
 
 		player_turn = false;
 	}
@@ -113,7 +220,7 @@ void game::WatchEvents() noexcept
 	sf::Event event;
 
 	std::function<bool(sf::Vector2f)> isInvalidPiece = [](sf::Vector2f pos) -> bool {
-		const std::function<bool(const Piece&)> callback = [&pos](const Piece& pPos) { return pPos.position == pos; };
+		const std::function<bool(const Piece&)> callback = [&pos](const Piece& pPos) -> bool { return pPos.position == pos; };
 		return game::VectorContainsValue(black_pieces, callback);
 	};
 

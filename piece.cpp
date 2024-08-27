@@ -5,6 +5,7 @@ using namespace game;
 
 std::vector<Piece> game::white_pieces = {};
 std::vector<Piece> game::black_pieces = {};
+std::vector<Piece> game::lost_pieces = {};
 
 Piece::Piece(Type t, sf::Color c, sf::Vector2f p)
 	: type(t), color(c), position(p)

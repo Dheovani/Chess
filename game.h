@@ -17,6 +17,9 @@ namespace game
 	// Verifies if someone won (and draws the win/lose screen)
 	bool GameOver(void) noexcept;
 
+	// Promotes a pawn to a specific avaiable piece
+	void PromotePawn(Piece&) noexcept;
+
 	// Moves a piece to a new location
 	void Move(Piece, sf::Vector2f) noexcept;
 

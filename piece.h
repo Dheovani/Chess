@@ -37,6 +37,8 @@ namespace game
 
 	extern std::vector<Piece> black_pieces;
 
+	extern std::vector<Piece> lost_pieces;
+
 	// Generates the pieces in the black and white piece vectors
 	void LoadPieces(void) noexcept;
 
