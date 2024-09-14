@@ -101,6 +101,7 @@ Piece game::GetPieceByPosition(sf::Vector2f position) noexcept
 			return piece;
 	}
 
+	// Invalid position since no piece was found
 	return Piece(Pawn, sf::Color::Transparent, { -1.f, -1.f });
 }
 

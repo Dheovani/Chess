@@ -1,6 +1,7 @@
 #include "game.h"
 #include <cmath>
 #include "utils.h"
+#include <iostream>
 #include <functional>
 #include "piece_movements.h"
 
@@ -144,19 +145,27 @@ void game::PromotePawn(Piece& piece) noexcept
 		}
 	}
 
-	int option = DrawPromotionOptions(piecesToPromote);
-	std::string type = piecesToPromote[option].c_str();
+	try {
+		if (piecesToPromote.empty())
+			return;
 
-	if (type == "Pawn")
-		piece.type = Pawn;
-	else if (type == "Rook")
-		piece.type = Rook;
-	else if (type == "Knight")
-		piece.type = Knight;
-	else if (type == "Bishop")
-		piece.type = Bishop;
-	else if (type == "Queen")
-		piece.type = Queen;
+		int option = DrawPromotionOptions(piecesToPromote);
+		std::string type = piecesToPromote.at(option).c_str();
+
+		if (type == "Pawn")
+			piece.type = Pawn;
+		else if (type == "Rook")
+			piece.type = Rook;
+		else if (type == "Knight")
+			piece.type = Knight;
+		else if (type == "Bishop")
+			piece.type = Bishop;
+		else if (type == "Queen")
+			piece.type = Queen;
+	}
+	catch (const std::out_of_range& e) {
+		std::cerr << e.what() << std::endl;
+	}
 }
 
 void game::Move(Piece piece, sf::Vector2f newPos) noexcept
