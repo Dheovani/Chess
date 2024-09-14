@@ -201,18 +201,18 @@ void game::Move(Piece piece, sf::Vector2f newPos) noexcept
 void game::MoveBlackPiece() noexcept
 {
 	size_t piece_n = game::GetRandomNumber(black_pieces);
-	Piece piece = black_pieces[piece_n];
-	// TODO: Encontrar e corrigir bug na alocação de memória ao criar os vetor de posições
-	std::vector<sf::Vector2f> validPositions = game::CalculatePieceMoves(piece);
+	Piece& piece = black_pieces[piece_n];
+	std::vector<sf::Vector2f> validPositions;
 
-	if (validPositions.empty())
-		game::MoveBlackPiece(); // Keep trying to find a valid piece to move
-	else {
-		size_t pos_n = game::GetRandomNumber(validPositions);
-		game::Move(piece, validPositions[pos_n]);
-
-		player_turn = true;
+	while(validPositions.empty()) {
+		piece_n = game::GetRandomNumber(black_pieces);
+		piece = black_pieces[piece_n];
+		validPositions = game::CalculatePieceMoves(piece);
 	}
+
+	size_t pos_n = game::GetRandomNumber(validPositions);
+	game::Move(piece, validPositions[pos_n]);
+	player_turn = true;
 }
 
 void game::WatchEvents() noexcept
